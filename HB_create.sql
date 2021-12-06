@@ -12,7 +12,26 @@ CREATE TABLE gym(
     locker bool,
     machine bool,
     area int
-); 
+);
+
+CREATE TABLE gym_schedule(
+	address varchar(32),
+	mon_start time default null,
+    mon_end time default null,
+	tue_start time default null,
+    tue_end time default null,
+    wed_start time default null,
+    wed_end time default null,
+    thu_start time default null,
+    thu_end time default null,
+	fri_start time default null,
+    fri_end time default null,
+    sat_start time default null,
+    sat_end time default null,
+    sun_start time default null,
+    sun_end time default null,
+    FOREIGN KEY (address) REFERENCES gym (address) ON DELETE CASCADE ON UPDATE CASCADE
+);
 
 CREATE table Employee (
 	EMPLOYEE_NO int AUTO_INCREMENT,
@@ -29,7 +48,18 @@ CREATE Table SCHEDULE (
 	START_TIME Datetime,
 	END_TIME Datetime,
 	PRIMARY KEY (Item_id),
-	FOREIGN KEY (EMPLOYEE_NO) REFERENCES Employee (EMPLOYEE_NO) ON DELETE CASCADE
+	FOREIGN KEY (EMPLOYEE_NO) REFERENCES Employee (EMPLOYEE_NO) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE Table PT_SCHEDULE (
+	Item_id int AUTO_INCREMENT,
+	EMPLOYEE_NO int,
+    MEMBER_ID int,
+	START_TIME Datetime,
+	END_TIME Datetime,
+	PRIMARY KEY (Item_id),
+	FOREIGN KEY (EMPLOYEE_NO) REFERENCES Employee (EMPLOYEE_NO) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (MEMBER_ID) REFERENCES PTMember (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 Create Table Equipment(
