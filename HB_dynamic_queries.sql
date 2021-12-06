@@ -79,11 +79,19 @@ BEGIN
 	 where basicmember.id = member_id and employee.EMPLOYEE_NO = trainer_id;
 END $$
  
+CALL new_pt_member_insert(200085,1);
+ 
+DELIMITER $$
+CREATE procedure change_pt_member_trainer(
+	in member_id int,
+    in trainer_id int
+)
+BEGIN
+	update ptmember set PT_trainer_id = trainer_id where employee.EMPLOYEE_NO = trainer_id;
+END $$
+ 
  set @member_gender = 1;
  SELECT * FROM gym WHERE SEX = @member_gender;
- 
- /*  체육관 영업시간 관련해서는 전면적인 수정이 필요  */
- UPDATE gym SET BUSINESSHOUR = 0 WHERE ADDRESS='경기도 수원시 영통구 월드컵로 206';
  
  /* 사용가능 운동기구 조회 */
 SELECT * FROM equipment
@@ -136,6 +144,11 @@ set @region = 'AJOU';
 SELECT COUNT(emp.EMPLOYEE_NO) as 직원수, COUNT(DISTINCT equip.Id_equipments) as 장비수 FROM (SELECT EMPLOYEE_NO FROM healthbase.gym inner join healthbase.employee on healthbase.gym.address like CONCAT('%',@region,'%') and healthbase.gym.address = healthbase.employee.WORKPLACE) as emp,
 	(SELECT Id_equipments FROM healthbase.gym inner join healthbase.equipment on healthbase.gym.address like CONCAT('%',@region,'%') and healthbase.gym.address = healthbase.equipment.Place) as equip;
 
+/* 통계 */
+SELECT AVG(AGE) as '평균 나이', COUNT(Gender = 1)/COUNT(Gender) as '남성비율' FROM basicmember;
+ 
+/* 트레이너 실적? 조회 */
+SELECT PT_trainer_id,COUNT(*) FROM ptmember GROUP BY PT_trainer_id;
  
 delete from ptmember where id = 1;
 
