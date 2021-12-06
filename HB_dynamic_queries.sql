@@ -25,7 +25,7 @@ BEGIN
 	 where address = @equipment_place;
 END$$
 
-
+DELIMITER $$
 /*	헬스장 직원 추가하기.	*/
 CREATE procedure new_employee_insert(
 	in employee_name VARCHAR(50),
@@ -39,21 +39,24 @@ BEGIN
 	 where address = employee_workplace;
  END $$
  
- CALL new_employee_insert('Ms.K',25,'Ajou Univ');
+ CALL new_employee_insert('Ms.K',25,'Ajou Univ 1');
  
-/*	헬스장 직원 일정 추가하기.	*/
+/*	헬스장 직원 일정 추가하기.	*/ 
+DELIMITER $$
 CREATE procedure new_employee_schedule_insert(
 	in employee_id int,
     in start_time Datetime,
     in end_time Datetime
 )
 BEGIN
-	insert into schedule(EMPLOYEE_NO, START_TIME, END_TIME)
-		select EMPLOYEE_NO, start_time, end_time from Employee where EMPLOYEE_NO = employee_id; 
- END $$
- 
+	insert into healthbase.schedule(EMPLOYEE_NO, START_TIME, END_TIME)
+		select EMPLOYEE_NO, start_time, end_time from healthbase.employee where EMPLOYEE_NO = employee_id; 
+END $$
+
+CALL new_employee_schedule_insert(4, '2021-09-02 12:00:00', '2021-09-02 13:00:00');
  
 /*	헬스장 이용객 추가하기.	*/
+DELIMITER $$
 CREATE procedure new_member_insert(
 	in member_name varchar(32),
     in member_age int,
@@ -64,6 +67,7 @@ BEGIN
 END $$
 
 /*	PT 맴버 추가하기. member_id는 헬스장 이용객의 id, trainer_id는 헬스장 직원의 id	*/
+DELIMITER $$
 CREATE procedure new_pt_member_insert(
 	in member_id int,
     in trainer_id int
@@ -73,7 +77,7 @@ BEGIN
 	select id, EMPLOYEE_NO, DATE_ADD(current_date(), INTERVAL 7 day)
 	  from basicmember, employee
 	 where basicmember.id = member_id and employee.EMPLOYEE_NO = trainer_id;
- END $$
+END $$
  
  set @member_gender = 1;
  SELECT * FROM gym WHERE SEX = @member_gender;
@@ -104,7 +108,7 @@ SELECT * FROM basicmember, PTMEMBER WHERE PTMEMBER.PT_trainer_id = @employee_id 
 
 /* 특정 직원의 근무 일정 조회 */
 set @employee_id = 1;
-SELECT * FROM SCHEDULE WHERE EMPLOYEE_NO = @employee_id;
+SELECT * FROM SCHEDULE WHERE EMPLOYEE_NO = @employee_id; oreder by START_TIME DESC;
 
 /* 남은 PT 날짜 조회*/
 set @member_id = 200060;
@@ -127,10 +131,17 @@ SELECT if(COUNT(*)>0, FALSE, TRUE) as 이용가능 FROM (SELECT START_TIME, END_
  where (@start_time <= s.START_TIME and s.START_TIME <= @end_time) or (@start_time <= s.END_TIME and s.END_TIME <= @end_time);
 
 
-/* 특정 지역 정보 조회 */
+/* 특정 지역 혹은 매장 정보 조회 */
 set @region = 'AJOU';
 SELECT COUNT(emp.EMPLOYEE_NO) as 직원수, COUNT(DISTINCT equip.Id_equipments) as 장비수 FROM (SELECT EMPLOYEE_NO FROM healthbase.gym inner join healthbase.employee on healthbase.gym.address like CONCAT('%',@region,'%') and healthbase.gym.address = healthbase.employee.WORKPLACE) as emp,
 	(SELECT Id_equipments FROM healthbase.gym inner join healthbase.equipment on healthbase.gym.address like CONCAT('%',@region,'%') and healthbase.gym.address = healthbase.equipment.Place) as equip;
 
  
 delete from ptmember where id = 1;
+
+delete from employee where EMPLOYEE_NO = 4;
+
+delete from gym where address = 'Ajou Univ 1';
+
+select * from employee;
+select * from SCHEDULE;
