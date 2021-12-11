@@ -1,3 +1,6 @@
+Drop procedure DUMMY_INSERT_GYM;
+Drop procedure DUMMY_INSERT_member;
+
 DELIMITER $$
 CREATE procedure DUMMY_INSERT_GYM()
 BEGIN
@@ -11,7 +14,7 @@ BEGIN
 	end while;
 END$$
 
-Drop procedure DUMMY_INSERT_member;
+
 DELIMITER $$
 CREATE procedure DUMMY_INSERT_member()
 BEGIN
@@ -32,16 +35,13 @@ BEGIN
 	DEALLOCATE PREPARE stmt;
 END$$
 
-
-
-
 DELIMITER ;
 
 DELETE FROM healthbase.basicmember WHERE id > -1;
 CALL DUMMY_INSERT_member();
 SELECT count(*) FROM healthbase.basicmember;
 
-CALL new_gym_insert('Ajou Univ 2', 'GYM NO 2','U');
+CALL new_gym_insert('Ajou Univ', 'GYM','U');
 SELECT * FROM pt_schedule;
 
 SELECT * FROM employee;

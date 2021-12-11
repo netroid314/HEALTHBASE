@@ -1,17 +1,16 @@
-CREATE database HealthBase_re;
-Use HealthBase_re;
-
+CREATE database HealthBase;
+Use HealthBase;
+drop database healthbase;
 CREATE TABLE gym(
     address varchar(32) not null primary key,
     name varchar(32) not null,
-    sex varchar(1),
-    businesshour int,
-    shower bool,
-    aerobic bool,
-    anaerobic bool,
-    locker bool,
-    machine bool,
-    area int
+    sex varchar(1) not null,
+    shower bool not null default false,
+    aerobic bool not null default false,
+    anaerobic bool not null default false,
+    locker bool not null default false,
+    machine bool not null default false,
+    constraint gender_validation check (sex in ('m','f','mf'))
 );
 
 CREATE TABLE gym_schedule(
@@ -44,30 +43,19 @@ CREATE table Employee (
 
 CREATE Table SCHEDULE (
 	Item_id int AUTO_INCREMENT,
-	EMPLOYEE_NO int,
-	START_TIME Datetime,
-	END_TIME Datetime,
+	EMPLOYEE_NO int not null,
+	START_TIME Datetime not null,
+	END_TIME Datetime not null,
 	PRIMARY KEY (Item_id),
 	FOREIGN KEY (EMPLOYEE_NO) REFERENCES Employee (EMPLOYEE_NO) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE Table PT_SCHEDULE (
-	Item_id int AUTO_INCREMENT,
-	EMPLOYEE_NO int,
-    MEMBER_ID int,
-	START_TIME Datetime,
-	END_TIME Datetime,
-	PRIMARY KEY (Item_id),
-	FOREIGN KEY (EMPLOYEE_NO) REFERENCES Employee (EMPLOYEE_NO) ON DELETE CASCADE ON UPDATE CASCADE,
-    FOREIGN KEY (MEMBER_ID) REFERENCES PTMember (id) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
 Create Table Equipment(
 	Id_equipments INT NOT NULL AUTO_INCREMENT,
-	Name_equipments VARCHAR(50) NOT NULL,
-	Weight_equipments CHAR(8),
-	IsUse_equipments BOOLEAN NOT NULL,
-    Place VARCHAR(32) NOT NULL,
+	Name_equipments VARCHAR(50) not null,
+	Weight_equipments int not null,
+	IsUse_equipments BOOLEAN not null default true,
+    Place VARCHAR(32) not null,
 	PRIMARY KEY (Id_equipments),
 	FOREIGN KEY (Place) references gym (address) ON DELETE CASCADE ON UPDATE CASCADE
 );
@@ -77,8 +65,9 @@ Create table BasicMember
 	id int NOT NULL auto_increment, 
 	Member_name varchar(32) NOT NULL,
 	Age int,
-	Gender int,
-    PRIMARY KEY (id)
+	Gender char(1) not null,
+    PRIMARY KEY (id),
+    constraint people_gender_validation check (Gender in (0,1))
 );
 
 Create table PTMember
@@ -88,6 +77,17 @@ Create table PTMember
     PRIMARY KEY (id),
 	FOREIGN KEY (id) references BasicMember (id) ON DELETE CASCADE ON UPDATE CASCADE,
 	FOREIGN KEY (PT_trainer_id) references Employee (EMPLOYEE_NO)
+);
+
+CREATE Table PT_SCHEDULE (
+	Item_id int AUTO_INCREMENT,
+	EMPLOYEE_NO int not null,
+    MEMBER_ID int not null,
+	START_TIME Datetime not null,
+	END_TIME Datetime not null,
+	PRIMARY KEY (Item_id),
+	FOREIGN KEY (EMPLOYEE_NO) REFERENCES Employee (EMPLOYEE_NO) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (MEMBER_ID) REFERENCES PTMember (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 
