@@ -212,3 +212,8 @@ begin
 	SELECT * FROM gym left join equipment on gym.address = equipment.address group by gym.address having count(*) >= minimum_equipment_count;
 end $$
 
+/* 시작 시간을 기준으로 pt 통계 조회 */
+create procedure statistic_day()
+begin
+	SELECT Time(pt_schedule.start_time) as time_period, count(*) as count FROM pt_schedule group by Time(pt_schedule.start_time) order by time_period asc;
+end $$
