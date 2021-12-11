@@ -1,6 +1,6 @@
 CREATE database HealthBase;
 Use HealthBase;
-drop database healthbase;
+
 CREATE TABLE gym(
     address varchar(32) not null primary key,
     name varchar(32) not null,
@@ -35,14 +35,16 @@ CREATE TABLE gym_schedule(
 CREATE table Employee (
 	EMPLOYEE_NO int AUTO_INCREMENT,
 	AGE int not NULL,
+    GENDER char(1) not NULL,
 	EMPLOYEE_NAME varchar(32) not NULL,
 	WORKPLACE varchar(32),
 	PRIMARY KEY (EMPLOYEE_NO),
-	FOREIGN KEY (WORKPLACE) REFERENCES gym (address) ON DELETE SET NULL ON UPDATE CASCADE
+	FOREIGN KEY (WORKPLACE) REFERENCES gym (address) ON DELETE SET NULL ON UPDATE CASCADE,
+    constraint people_gender_validation check (Gender in ('m','f')),
+    constraint employee_age_const check (AGE >= 15)
 );
 
 CREATE Table SCHEDULE (
-	Item_id int AUTO_INCREMENT,
 	EMPLOYEE_NO int not null,
 	START_TIME Datetime not null,
 	END_TIME Datetime not null,
@@ -67,7 +69,7 @@ Create table BasicMember
 	Age int,
 	Gender char(1) not null,
     PRIMARY KEY (id),
-    constraint people_gender_validation check (Gender in (0,1))
+    constraint member_gender_validation check (Gender in ('m','f'))
 );
 
 Create table PTMember

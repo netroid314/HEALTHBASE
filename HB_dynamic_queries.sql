@@ -1,16 +1,8 @@
 USE healthbase;
 
-Drop procedure new_gym_insert;
-Drop procedure new_equip_insert;
-Drop procedure new_employee_insert;
-Drop procedure new_employee_schedule_insert;
-Drop procedure new_member_insert;
-Drop procedure change_pt_member_trainer;
-Drop procedure select_gym_by_gender;
-
-/*	헬스장 추가하기	*/
 DELIMITER $$
 
+/*	헬스장 추가하기	*/
 CREATE procedure new_gym_insert(
 	IN place_address VARCHAR(32),
     in place_name VARCHAR(32),
@@ -33,7 +25,6 @@ BEGIN
 	 where address = @equipment_place;
 END$$
 
-DELIMITER $$
 /*	헬스장 직원 추가하기.	*/
 CREATE procedure new_employee_insert(
 	in employee_name VARCHAR(50),
@@ -50,7 +41,6 @@ BEGIN
  CALL new_employee_insert('Ms.K',25,'Ajou Univ 1');
  
 /*	헬스장 직원 일정 추가하기.	*/ 
-DELIMITER $$
 CREATE procedure new_employee_schedule_insert(
 	in employee_id int,
     in start_time Datetime,
@@ -60,11 +50,8 @@ BEGIN
 	insert into healthbase.schedule(EMPLOYEE_NO, START_TIME, END_TIME)
 		select EMPLOYEE_NO, start_time, end_time from healthbase.employee where EMPLOYEE_NO = employee_id; 
 END $$
-
-CALL new_employee_schedule_insert(4, '2021-09-02 12:00:00', '2021-09-02 13:00:00');
  
 /*	헬스장 이용객 추가하기.	*/
-DELIMITER $$
 CREATE procedure new_member_insert(
 	in member_name varchar(32),
     in member_age int,
@@ -75,7 +62,6 @@ BEGIN
 END $$
 
 /*	PT 맴버 추가하기. member_id는 헬스장 이용객의 id, trainer_id는 헬스장 직원의 id	*/
-DELIMITER $$
 CREATE procedure new_pt_member_insert(
 	in member_id int,
     in trainer_id int
@@ -87,9 +73,6 @@ BEGIN
 	 where basicmember.id = member_id and employee.EMPLOYEE_NO = trainer_id;
 END $$
  
-CALL new_pt_member_insert(200085,1);
- 
-DELIMITER $$
 CREATE procedure change_pt_member_trainer(
 	in member_id int,
     in trainer_id int
@@ -98,7 +81,7 @@ BEGIN
 	update ptmember set PT_trainer_id = trainer_id where employee.EMPLOYEE_NO = trainer_id;
 END $$
  
-DELIMITER $$
+/* 성별에 따른 헬스장 조회 */
 CREATE procedure select_gym_by_gender(
 in gender char(1)
 )
@@ -205,6 +188,27 @@ begin
 	SELECT PT_trainer_id,COUNT(*) FROM ptmember GROUP BY PT_trainer_id;
 end $$
 
+/* 이용객 PT 전체 일정 조회 */
+create procedure select_memeber_pt_schedule(
+	in target_member_id int
+)
+begin
+	SELECT * FROM pt_schedule where member_id = target_member_id order by start_time DESC;
+end $$
 
-select * from employee;
-select * from SCHEDULE;
+/* 트레이너 PT 전체 일정 조회 */
+create procedure select_trainer_pt_schedule(
+	in target_trainer_id int
+)
+begin
+	SELECT * FROM pt_schedule where employee_no = target_trainer_id order by start_time DESC;
+end $$
+
+/* 일정 갯수 이상의 장비를 보유한 헬스장 조회 */
+create procedure select_gym_equip_constraint(
+	in minimum_equipment_count int
+)
+begin
+	SELECT * FROM gym left join equipment on gym.address = equipment.address group by gym.address having count(*) >= minimum_equipment_count;
+end $$
+
