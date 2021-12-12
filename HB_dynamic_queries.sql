@@ -6,7 +6,7 @@ DELIMITER $$
 CREATE procedure new_gym_insert(
 	IN place_address VARCHAR(32),
     in place_name VARCHAR(32),
-    in place_gender_limit varchar(1)
+    in place_gender_limit varchar(2)
 )
 BEGIN
 	insert into healthbase.gym(address, name, sex) values(place_address, place_name, place_gender_limit);
@@ -29,17 +29,16 @@ END$$
 CREATE procedure new_employee_insert(
 	in employee_name VARCHAR(50),
     in employee_age CHAR(8),
-    in employee_workplace VARCHAR(32)
+    in employee_workplace VARCHAR(32),
+    in employee_gender char(1)
 )
 BEGIN
-	insert into healthbase.employee(EMPLOYEE_NAME, age, WORKPLACE)
-	select employee_name, employee_age, address
+	insert into healthbase.employee(EMPLOYEE_NAME, age, WORKPLACE, gender)
+	select employee_name, employee_age, address, employee_gender
 	  from gym
 	 where address = employee_workplace;
  END $$
- 
- CALL new_employee_insert('Ms.K',25,'Ajou Univ 1');
- 
+
 /*	헬스장 직원 일정 추가하기.	*/ 
 CREATE procedure new_employee_schedule_insert(
 	in employee_id int,
@@ -61,16 +60,31 @@ BEGIN
 	insert into basicmember(Member_name, age, Gender) values(member_name, member_age, member_gender);
 END $$
 
+delimiter $$
 /*	PT 맴버 추가하기. member_id는 헬스장 이용객의 id, trainer_id는 헬스장 직원의 id	*/
 CREATE procedure new_pt_member_insert(
 	in member_id int,
-    in trainer_id int
+    in trainer_id int,
+    in member_end_date datetime
 )
 BEGIN
 	insert into healthbase.ptmember(id, PT_trainer_id, end_date)
-	select id, EMPLOYEE_NO, DATE_ADD(current_date(), INTERVAL 7 day)
+	select id, EMPLOYEE_NO, member_end_date
 	  from basicmember, employee
 	 where basicmember.id = member_id and employee.EMPLOYEE_NO = trainer_id;
+END $$
+
+CREATE procedure new_pt_schedule(
+	in pt_member_id int,
+    in trainer_id int,
+    in pt_start_date datetime,
+    in pt_end_date datetime
+)
+BEGIN
+	insert into healthbase.PT_SCHEDULE(MEMBER_ID, EMPLOYEE_NO, start_time, end_time)
+	select id, PT_trainer_id, pt_start_date, pt_end_date
+	  from ptmember
+	 where ptmember.id = pt_member_id and ptmember.PT_trainer_id = trainer_id;
 END $$
  
 CREATE procedure change_pt_member_trainer(
@@ -217,3 +231,17 @@ create procedure statistic_day()
 begin
 	SELECT Time(pt_schedule.start_time) as time_period, count(*) as count FROM pt_schedule group by Time(pt_schedule.start_time) order by time_period asc;
 end $$
+
+
+/* 이 아래는 playground 입니다. */
+
+CALL new_gym_insert('Ajou Univ','아주대 본점','mf');
+CALL new_employee_insert('Mr.abc',18,'Ajou Univ','m');
+CALL new_pt_member_insert(3,1,'2021-12-31 12:00:00');
+CALL new_pt_schedule(2,1,'2021-12-31 10:00:00','2021-12-31 12:00:00');
+
+
+select e.start_time, e.timeperiod, e.timeperiod/c.total from (select START_TIME, count(start_time) as timeperiod
+from pt_schedule
+Group by START_TIME
+having count(start_time) >= 1) as e, (select count(*) as total from pt_schedule) as c

@@ -4,7 +4,7 @@ Use HealthBase;
 CREATE TABLE gym(
     address varchar(32) not null primary key,
     name varchar(32) not null,
-    sex varchar(1) not null,
+    sex varchar(2) not null,
     shower bool not null default false,
     aerobic bool not null default false,
     anaerobic bool not null default false,
@@ -48,7 +48,6 @@ CREATE Table SCHEDULE (
 	EMPLOYEE_NO int not null,
 	START_TIME Datetime not null,
 	END_TIME Datetime not null,
-	PRIMARY KEY (Item_id),
 	FOREIGN KEY (EMPLOYEE_NO) REFERENCES Employee (EMPLOYEE_NO) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
@@ -76,6 +75,7 @@ Create table PTMember
 (
 	id int NOT NULL,
     PT_trainer_id int NOT NULL,
+    end_date datetime not null,
     PRIMARY KEY (id),
 	FOREIGN KEY (id) references BasicMember (id) ON DELETE CASCADE ON UPDATE CASCADE,
 	FOREIGN KEY (PT_trainer_id) references Employee (EMPLOYEE_NO)

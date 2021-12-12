@@ -11,17 +11,18 @@ BEGIN
 	end while;
 END$$
 
+drop procedure DUMMY_INSERT_member;
 DELIMITER $$
 CREATE procedure DUMMY_INSERT_member()
 BEGIN
 	DECLARE i INT DEFAULT 1;
     set @member_name = "Mr.J";
 	set @member_age = 25;
-	set @member_gender = 1;
+	set @member_gender = "m";
         
-    set @insert_query = 'insert into basicmember(Member_name, age, Gender) values("Mr.J",25,1)';
-    WHILE ( i <= 1000) DO
-        set @value_query = CONCAT(',("',@member_name,'",',@member_age,',',@member_gender,')');
+    set @insert_query = 'insert into basicmember(Member_name, age, Gender) values("Mr.J",25,"m")';
+    WHILE ( i <= 999) DO
+        set @value_query = CONCAT(',("',@member_name,'",',@member_age,',"',@member_gender,'")');
         set @insert_query = concat(@insert_query,@value_query);
         set i = i+1;
 	end while;
@@ -33,11 +34,14 @@ END$$
 CREATE procedure DUMMY_INSERT_member_100k()
 BEGIN
 	DECLARE i INT DEFAULT 1;
-
     WHILE ( i <= 100) DO
         call DUMMY_INSERT_member();
+        set i = i+1;
 	end while;
 END$$
 
 DELIMITER ;
 
+CALL DUMMY_INSERT_member_100k();
+select count(*) from basicmember;
+delete from basicmember where id > 0;
